@@ -564,8 +564,6 @@ docker image save `docker image ls --format "{{.Repository}}: {{.Tag}}"` | gzip 
 ``` shell
 docker load -i /path/file.tar
 docker load < /path/file.tar.gz
-
-
 ```
 
 ## 镜像删除
@@ -1152,6 +1150,12 @@ docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=wordpres
 ## 清除不再使用的数据
 
 ```shell
+docker system --help
+```
+
+
+
+```shell
 # 删除docker中所有不在使用的
 # 慎用，慎用，慎用，
 docker system  prune
@@ -1176,7 +1180,7 @@ docker export nginx -o nginx.tar
 
 tar tvf nginx.tar |head
 
-#import 实现将容器文件生成镜像
+#import 实现将容器文件生成镜像，将容器变为镜像了
 docker import nginx.tar nginx:v1.22
 docker images nginx:v1.22
 ```
@@ -1240,12 +1244,15 @@ CRIU(Checkpoint/Restore In Userspace)是一款 Linux 软件。它可以冻结正
 
 ## Docker 基于 CRIU 实现热迁移步骤
 
+将运行中容器迁移
+
 1.   创建检查点：
 
      ```shell
      docker checkpoint create <container_name> <checkpoint_name>
      docker checkpoint create --checkpoint-dir /srv/ <container_name> <checkpoint_name> 
      #创建checkpoint后,容器会自动退出
+     --leave-running 会不停止
      ```
 
 2.   导出检查点：
@@ -1266,7 +1273,9 @@ CRIU(Checkpoint/Restore In Userspace)是一款 Linux 软件。它可以冻结正
 
      ```shell
      #用相同的命令创建和前面主机同样的容器,注意:只创建不运行
+     docker create xxx
      
+     # 将checkpoint放到容器目录下的checkpoi
      #恢复容器
      docker start --checkpoint=<checkpoint_name> <container_name>
      ```
